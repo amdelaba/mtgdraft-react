@@ -22,6 +22,9 @@ const Navigation = () => {
           <Link className="nav-link" to={'/draft'}>
             DRAFT
           </Link>
+          <Link className="nav-link" to={'/auth'}>
+            SIGN IN
+          </Link>
         </div>
       </div>
 
