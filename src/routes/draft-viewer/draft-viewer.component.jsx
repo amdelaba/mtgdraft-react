@@ -5,6 +5,7 @@ import './draft-viewer.styles.scss'
 const DraftViewer = () =>{
   return (
     <div className='draft-container'>
+      <h2>Pick a Card</h2>
       <PackViewer />
       <br/>
       <DeckBuilder />

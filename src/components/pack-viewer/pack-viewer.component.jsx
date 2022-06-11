@@ -1,30 +1,39 @@
 import Card from '../card/card.component';
 import './pack-viewer.styles.scss'
 
+import CARD_SET  from "../../card-set.json";
+import { useEffect, useState } from 'react';
+
+const generateRandomBooster = (cardSet) => {
+  const BOOSTER_SIZE = 15;
+  const cardSetSize = cardSet.data.length;
+
+  var randomArray = [];
+  while(randomArray.length < BOOSTER_SIZE){
+      var r = Math.floor(Math.random() * cardSetSize);
+      if(randomArray.indexOf(r) === -1) randomArray.push(r);
+  }
+
+  return randomArray.map((index) => cardSet.data[index]);
+}
+
 const PackViewer = () => {
 
-  const packs = [
-    {
-      id: 1,
-      name: 'Card 1'
-    },
-    {
-      id: 2,
-      name: 'Card 2'
-    }
+  const [boosterPack, setBoosterPack] = useState([])
 
-  ];
+  // Create a 15 card booster pack on mounting
+  useEffect(() => {
+    const randomlyGeneratedBooster = generateRandomBooster(CARD_SET);
+    setBoosterPack(randomlyGeneratedBooster);
+  }, []);
 
 
   return(
     <div className='pack-container'>
-      <h2>Pick a Card</h2>
-      <div className='cards-container'>
-      {packs.map((card)=>{
-        return( <Card key={card.id} name={card.name}  /> )
-      })}
-
-      </div>
+      {
+        boosterPack.length > 0 && 
+        boosterPack.map( (card) => <Card key={card.id} card={card} /> )
+      }
     </div>
   )
 

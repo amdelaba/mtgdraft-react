@@ -1,18 +1,25 @@
 .pack-container {
-  border: 1px solid black;
-  height: 240px;
+  // border: 1px solid black;
+  // height: 240px;
   // display: flex;
   // flex-wrap: wrap;
   // justify-content: space-between;
   // align-items: center;
   // justify-content: center;
 
-  .cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    // justify-content: space-between;
-  }
+  // .cards-container {
+  //   display: flex;
+  //   flex-wrap: wrap;
+  //   justify-content: space-between;
+  // }
 
+  width: 80%;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 10px;
+  row-gap: 50px;
 
 }
 
