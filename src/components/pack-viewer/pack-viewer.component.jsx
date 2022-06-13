@@ -2,37 +2,31 @@ import Card from '../card/card.component';
 import './pack-viewer.styles.scss'
 
 import CARD_SET  from "../../card-set.json";
-import { useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
+import { DraftContext } from '../../context/draft.context';
 
-const generateRandomBooster = (cardSet) => {
-  const BOOSTER_SIZE = 15;
-  const cardSetSize = cardSet.data.length;
-
-  var randomArray = [];
-  while(randomArray.length < BOOSTER_SIZE){
-      var r = Math.floor(Math.random() * cardSetSize);
-      if(randomArray.indexOf(r) === -1) randomArray.push(r);
-  }
-
-  return randomArray.map((index) => cardSet.data[index]);
-}
 
 const PackViewer = () => {
+  
+  const {currentPack, setCurrentPack, selectCard, generateRandomBooster} = useContext(DraftContext);
 
-  const [boosterPack, setBoosterPack] = useState([])
+  // useEffect(() => {
+  //   console.log({currentPack})
+  //   console.log({mainDeck});
+  // }, [mainDeck, currentPack]);
 
   // Create a 15 card booster pack on mounting
+  // TODO: fix this dependencie (just adding)
   useEffect(() => {
     const randomlyGeneratedBooster = generateRandomBooster(CARD_SET);
-    setBoosterPack(randomlyGeneratedBooster);
-  }, []);
-
+    setCurrentPack(randomlyGeneratedBooster);
+  }, [setCurrentPack]);
 
   return(
     <div className='pack-container'>
       {
-        boosterPack.length > 0 && 
-        boosterPack.map( (card) => <Card key={card.id} card={card} /> )
+        currentPack.length > 0 && 
+        currentPack.map( (card) => <Card key={card.id} card={card} onClickHandler={() => selectCard(card)}/> )
       }
     </div>
   )
