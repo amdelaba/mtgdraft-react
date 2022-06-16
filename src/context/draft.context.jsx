@@ -1,14 +1,20 @@
 import { createContext, useState } from "react";
+// import CARD_SET from '../card-set.json'
 
 export const DraftContext = createContext({
-  currentPack: [],
-  currentDraftingPacks: [],
+  currentDraftingPacks: [],  // Collection of 8 current booster packs being drafted 
+  currentPackIndex: null,
   mainDeck: [],
   sideboard: [],
+  
   selectCard: () => {},
   moveToSideboardFromMaindeck: () => {},
   moveToMaindeckFromSideboard: () => {},
+
   generateRandomBooster: () => {},
+  generateCollectionOfBoosters: () => {},
+  getNextPack: () => {},     // Sets currentPack to be the next in the Collection in Order
+  bots: []                   // 7 arrays, listing cards randomly picked by bots
 });
 
 // Removes ALL copies of given card
@@ -36,9 +42,11 @@ const addCard = (cardToAdd, cardList) => {
 
 export const DraftProvider = ({ children }) => {
 
-  const [currentPack, setCurrentPack] = useState([]); 
+  const [currentPackIndex, setCurrentPackIndex] = useState([]); 
+
   const [mainDeck, setMainDeck] = useState([]); 
   const [sideboard, setSideboard] = useState([]); 
+  const [currentDraftingPacks, setCurrentDraftingPacks] = useState([]); 
 
   // TODO: Creater Card object with only props that I need and 
   // additional ones such as quantity in deck
@@ -46,9 +54,18 @@ export const DraftProvider = ({ children }) => {
   // Add card to maindeck + quantity drafted
   // TODO: create function to add to Sideboard directly
   const selectCard = (cardToSelect) => {
-    setCurrentPack(removeCard(cardToSelect, currentPack));
-    // setCurrentPack(removeOneCopy(cardToSelect, currentPack));
+
+    const updatedCurrentDraftingPacks = [...currentDraftingPacks];
+
+    updatedCurrentDraftingPacks[currentPackIndex] = removeCard(cardToSelect, currentDraftingPacks[currentPackIndex])
+
+    setCurrentDraftingPacks(updatedCurrentDraftingPacks);
+
     setMainDeck(addCard(cardToSelect, mainDeck));
+
+    // TODO: randomly remove a card from the other packs
+    //  to simulate bots
+    
   };
 
   const moveToSideboardFromMaindeck = (cardToMove) => {
@@ -76,15 +93,26 @@ export const DraftProvider = ({ children }) => {
     return randomArray.map((index) => cardSet.data[index]);
   }
 
+  const generateCollectionOfBoosters = (cardSet, numberOfBoosters) => {
+    const generatedBoosters = [];
+    while (generatedBoosters.length < numberOfBoosters){
+      generatedBoosters.push(generateRandomBooster(cardSet));
+    }
+
+    setCurrentDraftingPacks(generatedBoosters);
+    setCurrentPackIndex(0);
+  };
+
   const value = { 
-    currentPack,
-    setCurrentPack,
+    currentPackIndex,
     mainDeck,
     sideboard,
     selectCard,
     moveToSideboardFromMaindeck,
     moveToMaindeckFromSideboard,
-    generateRandomBooster
+    generateRandomBooster,
+    generateCollectionOfBoosters,
+    currentDraftingPacks
   };
 
   return <DraftContext.Provider value={value}>{children}</DraftContext.Provider>
