@@ -10,15 +10,24 @@ const PackViewer = () => {
   const {
     currentPackIndex, 
     currentDraftingPacks,
-    selectCard
+    selectCard,
   } = useContext(DraftContext);
+
+  const onCardClickHandler = (card) => {
+    selectCard(card);
+  };
 
   return(
     <div className='pack-container'>
       {
         currentDraftingPacks && 
         currentDraftingPacks[currentPackIndex] &&
-        currentDraftingPacks[currentPackIndex].map( (card) => <Card key={card.id} card={card} onClickHandler={() => selectCard(card)}/> )
+        currentDraftingPacks[currentPackIndex].map( (card) => 
+          <Card 
+            key={card.id} 
+            card={card} 
+            onClickHandler={() => onCardClickHandler(card)}
+          /> )
       }
     </div>
   );

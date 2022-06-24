@@ -3,26 +3,28 @@ import DeckBuilder from '../../components/deck-builder/deck-builder.component';
 import PackViewer from '../../components/pack-viewer/pack-viewer.component';
 import { DraftContext } from '../../context/draft.context';
 import './draft-viewer.styles.scss'
-import CARD_SET  from "../../card-set.json";
 
 const DraftViewer = () => {
 
   const {
     currentPackIndex,
     currentDraftingPacks,
-    generateCollectionOfBoosters
+    startDraft,
+    bots
   } = useContext(DraftContext);
   
   useEffect(() => {
-    console.log({currentDraftingPacks}); 
-    console.log({currentPackIndex});
-  }, [currentDraftingPacks, currentPackIndex]);
+    const packs = currentDraftingPacks.map((pack) => pack.map((card) => ({"name": card.name, "quantity": card.quantity })));
+    const my_bots = bots.map((bot) => bot.map((card)  => ({"name": card.name, "quantity": card.quantity }))); 
+    console.log({packs}); 
+    console.log({my_bots});
+  }, [currentDraftingPacks, currentPackIndex, bots]);
 
   
   // Create collection of packs
   // TODO: fix this dependencie? (just adding function does not work)
   useEffect(() => {
-    generateCollectionOfBoosters(CARD_SET, 8);
+    startDraft();
   }, []);
 
   return (
