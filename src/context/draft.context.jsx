@@ -1,7 +1,10 @@
 import { createContext, useState } from "react";
-import CARD_SET from '../card-set.json'
+
 
 export const NUM_DRAFTERS = 8;
+const BOOSTER_SIZE = 15;
+const SET_OF_PACKS_NUM = 3;
+
 
 export const DraftContext = createContext({
   currentDraftingPacks: [],  // Collection of 8 current booster packs being drafted 
@@ -18,6 +21,10 @@ export const DraftContext = createContext({
   bots: [],                     // 7 arrays, listing cards randomly picked by bots
 
   startDraft: () => {},
+
+  currentSetOfPacksNum: 0,
+  currentPickNum: 0, 
+  draftIsOver: false
 
 });
 
@@ -54,11 +61,22 @@ export const DraftProvider = ({ children }) => {
   const [currentDraftingPacks, setCurrentDraftingPacks] = useState([]); 
   const [bots, setBots] = useState([]); 
 
+  const [currentSetOfPacksNum, setCurrentSetOfPacksNum] = useState(1); 
+  const [currentPickNum, setCurrentPickNum] = useState(1); 
+
+  const [currentDraftSet, setCurrentDraftSet] = useState([]);
+
+  const [draftIsOver, setDraftIsOver] = useState(false);
+
+
+
+
   // TODO: Creater Card object with only props that I need and 
   // additional ones such as quantity in deck
 
 
   // TODO: create function to add to Sideboard directly
+  //  including drag and drop (main and side)
 
   // NOTE: this func makes bot picks and human pick 
   //  in order to do only one call to 'setCurrentDraftingPacks'
@@ -68,7 +86,6 @@ export const DraftProvider = ({ children }) => {
     const updatedCurrentDraftingPacks = [...currentDraftingPacks];
     const updatedBots = [...bots]
 
-    console.log({currentPackIndex})
 
     for (let botIndex = 0; botIndex < bots.length; botIndex++) {
 
@@ -115,32 +132,56 @@ export const DraftProvider = ({ children }) => {
     setMainDeck(addCard(cardToMove, mainDeck))
   };
 
-  const startDraft = () => {
+  const startDraft = (cardSet) => {
 
-    // pull set from DB
+    // TODO: clear maindeck and sideboard
+    setMainDeck([]);
+    setSideboard([]);
+    
+    setCurrentSetOfPacksNum(1);
+    setCurrentPickNum(1);
 
+    setDraftIsOver(false);
+    
     // initialize bots => Each bot (x8) is an empty array
     const botsInitialState = [];
     while(botsInitialState.length < NUM_DRAFTERS - 1){
       botsInitialState.push([])
     };
     setBots(botsInitialState);
-
+    
     // generateBoosters
-    generateCollectionOfBoosters(CARD_SET, NUM_DRAFTERS);
+    
+    // const cardSetSimplified = simplifySet(CARD_SET.data)
+    // generateCollectionOfBoosters(cardSetSimplified, NUM_DRAFTERS);
+    
+    console.log({cardSet})
+    setCurrentDraftSet(cardSet)
+    generateCollectionOfBoosters(cardSet, NUM_DRAFTERS);
   }
 
-  // TODO: refactor this function, to make more readable
+  // NOT NEEDED ATM
+  //  used for simplifying local card set
+  // const simplifySet = (set) => {
+  //   return set.map((card) => {
+  //     return {
+  //       id: card.id,
+  //       name: card.name,
+  //       imageUrl: card.image_uris.border_crop,
+  //       colors: card.colors,
+  //       rarity: card.rarity
+  //     }});
+  // };
+
+
   const generateRandomBooster = (cardSet) => {
-    const BOOSTER_SIZE = 15;
-    const cardSetSize = cardSet.data.length;
-    // var randomArray = [0,1,2,3,4,5,5,5,5];
+    const cardSetSize = cardSet.length;
     var randomArray = [];
-    while(randomArray.length < BOOSTER_SIZE){
+    while(randomArray.length < BOOSTER_SIZE) {
         var r = Math.floor(Math.random() * cardSetSize);
         if(randomArray.indexOf(r) === -1) randomArray.push(r);
     }
-    return randomArray.map((index) => cardSet.data[index]);
+    return randomArray.map((index) => cardSet[index]);
   }
 
   const generateCollectionOfBoosters = (cardSet, numberOfBoosters) => {
@@ -154,7 +195,18 @@ export const DraftProvider = ({ children }) => {
 
   const getNextPack = () => {
     currentPackIndex === NUM_DRAFTERS - 1 ? setCurrentPackIndex(0) : setCurrentPackIndex(currentPackIndex + 1);
-    // logic to go to next set of packs
+
+    if (currentPickNum < BOOSTER_SIZE) {
+      setCurrentPickNum(currentPickNum + 1)
+    } else if (currentSetOfPacksNum < SET_OF_PACKS_NUM) {
+      generateCollectionOfBoosters(currentDraftSet, NUM_DRAFTERS);
+      setCurrentPackIndex(0)
+      setCurrentSetOfPacksNum(currentSetOfPacksNum + 1)
+      setCurrentPickNum(1)
+    } else {
+      console.log('Draft Ended')
+      setDraftIsOver(true);
+    }
   };
 
   const value = { 
@@ -169,6 +221,8 @@ export const DraftProvider = ({ children }) => {
     currentDraftingPacks,
     startDraft,
     bots,  // TODO: only exposing bots for logging purposes (remove afterwards)
+    currentSetOfPacksNum,
+    draftIsOver
   };
 
   return <DraftContext.Provider value={value}>{children}</DraftContext.Provider>

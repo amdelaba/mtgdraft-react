@@ -7,6 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { UserProvider } from './context/user.context';
 import { DraftProvider } from './context/draft.context';
+import { CardSetProvider } from './context/card-set.context';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,9 +15,11 @@ root.render(
   <BrowserRouter>
     <React.StrictMode>
       <UserProvider>
-        <DraftProvider>
-          <App />
-        </DraftProvider>
+        <CardSetProvider>
+          <DraftProvider>
+            <App />
+          </DraftProvider>
+        </CardSetProvider>
       </UserProvider>
     </React.StrictMode>
   </BrowserRouter>

@@ -10,7 +10,16 @@ import {
   onAuthStateChanged
 } from "firebase/auth";
 
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  setDoc,
+  collection,
+  writeBatch,   
+  query,
+  getDocs
+} from "firebase/firestore";
 
 
 //mtgdraft
@@ -104,3 +113,38 @@ export const signOutUser = async () => await signOut(auth);
 export const onAuthStateChangedListener = (callback) => {
   onAuthStateChanged(auth, callback);
 };
+
+export const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
+  const collectionRef = collection(db, collectionKey);
+  const batch =  writeBatch(db);
+
+  // TODO: Add fields that would allow to collate packs correctly including:
+  //  - rarity, color 
+  objectsToAdd.forEach((object) => {
+    const simpleObject = {
+      id: object.id,
+      name: object.name,
+      imageUrl: object.image_uris.border_crop,
+    }
+    
+    // const docRef = doc(collectionRef, object.title.toLowerCase());
+    const docRef = doc(collectionRef, simpleObject.id);
+    batch.set(docRef, simpleObject)
+  })
+
+  await batch.commit();
+  console.log('done')
+};
+
+export const getCardSet = async() => {
+  const collectionRef = collection(db, 'SNC_simple');
+  const q = query(collectionRef);   
+  const querySnapshot = await getDocs(q);
+
+  const cardSet = querySnapshot.docs.map((docSnapshot) => {
+    const { id, name, imageUrl } = docSnapshot.data();
+    return { id, name, imageUrl };
+  });
+
+  return cardSet;
+}

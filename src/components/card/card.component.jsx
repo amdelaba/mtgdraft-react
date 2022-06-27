@@ -2,10 +2,11 @@ import './card.styles.scss'
 
 const Card = ({card, onClickHandler}) => {
 
-  const ART_STYLE = 'border_crop';
+  const { name } = card;
 
-  const {name} = card;
-  const imageUrl = card.image_uris[ART_STYLE];
+  const { imageUrl } = card;
+  // const imageUrl = card.image_uris['border_crop'];
+  
 
   return(
     <div className='card' onClick={onClickHandler}>
